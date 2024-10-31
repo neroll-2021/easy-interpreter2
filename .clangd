@@ -1,0 +1,7 @@
+CompileFlags:
+  Add: [-std=c++23, -ID:\Work\DailyProject\C++\nscript-interpreter\include]
+Diagnostics:
+  # Tweak Clang-Tidy checks.
+  ClangTidy:
+    Add: [performance*, modernize*, readability*, cppcoreguidelines*]
+    Remove: [modernize-use-trailing-return-type]
