@@ -11,7 +11,7 @@ namespace script {
 
 class syntax_error : public std::exception {
  public:
-    syntax_error(std::string msg)
+    explicit syntax_error(std::string msg)
         : message(std::move(msg)) {}
 
     [[nodiscard]]
@@ -25,7 +25,7 @@ class syntax_error : public std::exception {
 
 class execute_error : public std::exception {
  public:
-    execute_error(std::string msg)
+    explicit execute_error(std::string msg)
         : message(std::move(msg)) {}
 
     [[nodiscard]]
@@ -38,7 +38,7 @@ class execute_error : public std::exception {
 
 class symbol_error : public std::exception {
  public:
-    symbol_error(std::string msg)
+    explicit symbol_error(std::string msg)
         : message(std::move(msg)) {}
 
     [[nodiscard]]
@@ -51,7 +51,7 @@ class symbol_error : public std::exception {
 
 class type_error : public std::exception {
  public:
-    type_error(std::string msg)
+    explicit type_error(std::string msg)
         : message(std::move(msg)) {}
 
     [[nodiscard]]

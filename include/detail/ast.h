@@ -33,6 +33,7 @@ class expr_node : public ast_node {
         value_ = std::move(value);
     }
 
+    [[nodiscard]]
     const value_t &value() const {
         return value_;
     }
@@ -68,6 +69,7 @@ class expr_node : public ast_node {
     }
 
     template <typename T>
+    [[nodiscard]]
     const auto &get() const {
         static_type_check<T>();
 
@@ -87,6 +89,7 @@ class expr_node : public ast_node {
 
     virtual void evaluate() = 0;
 
+    [[nodiscard]]
     variable_type eval_type() const {
         return static_cast<variable_type>(value_.index());
     }
@@ -103,9 +106,12 @@ class binary_expr_node : public expr_node {
 
     virtual ~binary_expr_node() = default;
 
+    [[nodiscard]]
     std::shared_ptr<expr_node> lhs() const {
         return lhs_;
     }
+
+    [[nodiscard]]
     std::shared_ptr<expr_node> rhs() const {
         return rhs_;
     }
@@ -764,11 +770,12 @@ class not_equal_node : public relation_node {
 
 class unary_node : public expr_node {
  public:
-    unary_node(std::shared_ptr<expr_node> expr)
+    explicit unary_node(std::shared_ptr<expr_node> expr)
         : expr_(std::move(expr)) {}
     
     virtual ~unary_node() = default;
     
+    [[nodiscard]]
     std::shared_ptr<expr_node> expr() const {
         return expr_;
     }
@@ -779,7 +786,7 @@ class unary_node : public expr_node {
 
 class negative_node : public unary_node {
  public:
-    negative_node(std::shared_ptr<expr_node> exp)
+    explicit negative_node(std::shared_ptr<expr_node> exp)
         : unary_node(std::move(exp)) {
         if (expr()->eval_type() != variable_type::integer && expr()->eval_type() != variable_type::floating)
             throw_type_error("invalid unary operator - for {}", eval_type());
@@ -796,7 +803,7 @@ class negative_node : public unary_node {
 
 class logical_not_node : public unary_node {
  public:
-    logical_not_node(std::shared_ptr<expr_node> exp)
+    explicit logical_not_node(std::shared_ptr<expr_node> exp)
         : unary_node(std::move(exp)) {
         if (expr()->eval_type() != variable_type::boolean) {
             throw_type_error("invalid unary operator ! for {}", eval_type());
@@ -833,7 +840,7 @@ class bit_not_node : public unary_node {
 
 class int_node : public expr_node {
  public:
-    int_node(int32_t value) {
+    explicit int_node(int32_t value) {
         set_value(value);
     }
 
@@ -842,7 +849,7 @@ class int_node : public expr_node {
 
 class float_node : public expr_node {
  public:
-    float_node(float value) {
+    explicit float_node(float value) {
         set_value(value);
     }
 
@@ -851,7 +858,7 @@ class float_node : public expr_node {
 
 class boolean_node : public expr_node {
  public:
-    boolean_node(bool value) {
+    explicit boolean_node(bool value) {
         set_value(value);
     }
 
@@ -860,7 +867,7 @@ class boolean_node : public expr_node {
 
 class string_node : public expr_node {
  public:
-    string_node(std::string s) {
+    explicit string_node(std::string s) {
         set_value(std::move(s));
     }
 
@@ -869,7 +876,7 @@ class string_node : public expr_node {
 
 class char_node : public expr_node {
  public:
-    char_node(char value) {
+    explicit char_node(char value) {
         set_value(value);
     }
 
@@ -878,18 +885,22 @@ class char_node : public expr_node {
 
 class array_node : public expr_node {
  public:
-    array_node(variable_type value_type)
+    explicit array_node(variable_type value_type)
         : value_type_(value_type) {}
 
+    [[nodiscard]]
     std::size_t size() const {
         assert(eval_type() == variable_type::array);
         return get<array>().size();
     }
+
+    [[nodiscard]]
     bool empty() const {
         assert(eval_type() == variable_type::array);
         return get<array>().empty();
     }
 
+    [[nodiscard]]
     const value_t &at(std::size_t index) const {
         return get<array>().operator[](index);
     }
@@ -899,6 +910,7 @@ class array_node : public expr_node {
         data[index] = value;
     }
 
+    [[nodiscard]]
     variable_type value_type() const {
         return value_type_;
     }
