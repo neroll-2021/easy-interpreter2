@@ -364,9 +364,245 @@ class lexer {
     };
 
     token scan_number() {
-        return token{"123", token_type::literal_int, position_};
+        reset();
+        unget();
+        int previous_state = -1;
+        int state = 0;
+        while (state != -1) {
+            get();
+            switch (state) {
+                case 0:
+                    switch (current_) {
+                        case '0':
+                            previous_state = state;
+                            state = 2;
+                            break;
+                        case '1':
+                        case '2':
+                        case '3':
+                        case '4':
+                        case '5':
+                        case '6':
+                        case '7':
+                        case '8':
+                        case '9':
+                            previous_state = state;
+                            state = 3;
+                            break;
+                        default:
+                            previous_state = state;
+                            state = -1;
+                            break;
+                    }
+                    break;
+                case 1:
+                    switch (current_) {
+                        case '0':
+                            previous_state = state;
+                            state = 2;
+                            break;
+                        case '1':
+                        case '2':
+                        case '3':
+                        case '4':
+                        case '5':
+                        case '6':
+                        case '7':
+                        case '8':
+                        case '9':
+                            previous_state = state;
+                            state = 3;
+                            break;
+                        default:
+                            previous_state = state;
+                            state = -1;
+                            break;
+                    }
+                    break;
+                case 2:
+                    switch (current_) {
+                        case '.':
+                            previous_state = state;
+                            state = 4;
+                            break;
+                        default:
+                            previous_state = state;
+                            state = -1;
+                            break;
+                    }
+                    break;
+                case 3:
+                    switch (current_) {
+                        case '.':
+                            previous_state = state;
+                            state = 4;
+                            break;
+                        case 'e':
+                        case 'E':
+                            previous_state = state;
+                            state = 6;
+                            break;
+                        case '0':
+                        case '1':
+                        case '2':
+                        case '3':
+                        case '4':
+                        case '5':
+                        case '6':
+                        case '7':
+                        case '8':
+                        case '9':
+                            // add(current_);
+                            previous_state = state;
+                            // state = 3;
+                            break;
+                        default:
+                            previous_state = state;
+                            state = -1;
+                            break;
+                    }
+                    break;
+                case 4:
+                    switch (current_) {
+                        case '0':
+                        case '1':
+                        case '2':
+                        case '3':
+                        case '4':
+                        case '5':
+                        case '6':
+                        case '7':
+                        case '8':
+                        case '9':
+                            // add(current_);
+                            previous_state = state;
+                            state = 5;
+                            break;
+                        default:
+                            previous_state = state;
+                            state = -1;
+                            break;
+                    }
+                    break;
+                case 5:
+                    switch (current_) {
+                        case '0':
+                        case '1':
+                        case '2':
+                        case '3':
+                        case '4':
+                        case '5':
+                        case '6':
+                        case '7':
+                        case '8':
+                        case '9':
+                            // add(current_);
+                            previous_state = state;
+                            // state = 5;
+                            break;
+                        case 'e':
+                        case 'E':
+                            // add(current_);
+                            previous_state = state;
+                            state = 6;
+                            break;
+                        default:
+                            previous_state = state;
+                            state = -1;
+                            break;
+                    }
+                    break;
+                case 6:
+                    switch (current_) {
+                        case '+':
+                        case '-':
+                            // add(current_);
+                            previous_state = state;
+                            state = 7;
+                            break;
+                        case '0':
+                        case '1':
+                        case '2':
+                        case '3':
+                        case '4':
+                        case '5':
+                        case '6':
+                        case '7':
+                        case '8':
+                        case '9':
+                            // add(current_);
+                            previous_state = state;
+                            state = 8;
+                            break;
+                        default:
+                            previous_state = state;
+                            state = -1;
+                            break;
+                    }
+                    break;
+                case 7:
+                    switch (current_) {
+                        case '0':
+                        case '1':
+                        case '2':
+                        case '3':
+                        case '4':
+                        case '5':
+                        case '6':
+                        case '7':
+                        case '8':
+                        case '9':
+                            // add(current_);
+                            previous_state = state;
+                            state = 8;
+                            break;
+                        default:
+                            // add(current_);
+                            previous_state = state;
+                            state = -1;
+                            break;
+                    }
+                    break;
+                case 8:
+                    switch (current_) {
+                        case '0':
+                        case '1':
+                        case '2':
+                        case '3':
+                        case '4':
+                        case '5':
+                        case '6':
+                        case '7':
+                        case '8':
+                        case '9':
+                            // add(current_);
+                            previous_state = state;
+                            state = 8;
+                            break;
+                        default:
+                            previous_state = state;
+                            state = -1;
+                            break;
+                    }
+                    break;
+                default:
+                    throw std::runtime_error("invaild state");
+            }
+        }
+        // check invaid number such as 123a
+        if (std::isalpha(current_)) {
+            return token{token_string_, token_type::parse_error, position_};
+        }
+        unget();
+        if (previous_state == 2 || previous_state == 3) {
+            return token(token_string_, token_type::literal_int, position_);
+        }
+        if (previous_state == 5 || previous_state == 8) {
+            return token(token_string_, token_type::literal_float, position_);
+        }
+        return token("invalid number literal", token_type::parse_error, position_);
     }
-    
+
     token scan_identifier() {
         reset();
         while (std::isalnum(current_) || current_ == '_') {

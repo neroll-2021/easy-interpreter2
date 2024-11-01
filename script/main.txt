@@ -2,6 +2,6 @@ function add(int x, int y) : int {
     return x + y;
 }
 
-int c = add(a, b);
+int c = add(12, 45.6e+3);
 
 println(c);
