@@ -1,0 +1,7 @@
+function add(int x, int y) : int {
+    return x + y;
+}
+
+int c = add(a, b);
+
+println(c);
