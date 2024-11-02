@@ -164,13 +164,14 @@ class binary_arithmetic_node : public binary_expr_node {
 
 class add_node final : public binary_arithmetic_node {
  public:
-    add_node(std::shared_ptr<expr_node> lhs , std::shared_ptr<expr_node> rhs)
-        : binary_arithmetic_node(lhs, rhs) {
-        variable_type lhs_type = lhs->eval_type();
-        variable_type rhs_type = rhs->eval_type();
+    add_node(std::shared_ptr<expr_node> left , std::shared_ptr<expr_node> right)
+        : binary_arithmetic_node(std::move(left), std::move(right)) {
+        variable_type lhs_type = lhs()->eval_type();
+        variable_type rhs_type = rhs()->eval_type();
 
-        if (is_both_string(lhs_type, rhs_type))
+        if (is_both_string(lhs_type, rhs_type)) {
             return;
+        }
 
         if (arithmetic_type_cast(lhs_type, rhs_type) == variable_type::error) {
             throw_type_error("invalid operator + between {} and {}", lhs_type, rhs_type);
@@ -216,10 +217,10 @@ class add_node final : public binary_arithmetic_node {
 
 class minus_node final : public binary_arithmetic_node {
  public:
-    minus_node(std::shared_ptr<expr_node> lhs , std::shared_ptr<expr_node> rhs)
-        : binary_arithmetic_node(lhs, rhs) {
-        variable_type lhs_type = lhs->eval_type();
-        variable_type rhs_type = rhs->eval_type();
+    minus_node(std::shared_ptr<expr_node> left , std::shared_ptr<expr_node> right)
+        : binary_arithmetic_node(std::move(left), std::move(right)) {
+        variable_type lhs_type = lhs()->eval_type();
+        variable_type rhs_type = rhs()->eval_type();
 
         if (arithmetic_type_cast(lhs_type, rhs_type) == variable_type::error) {
             throw_type_error("invalid operator - between {} and {}", lhs_type, rhs_type);
@@ -253,10 +254,10 @@ class minus_node final : public binary_arithmetic_node {
 
 class multiply_node final : public binary_arithmetic_node {
  public:
-    multiply_node(std::shared_ptr<expr_node> lhs , std::shared_ptr<expr_node> rhs)
-        : binary_arithmetic_node(lhs, rhs) {
-        variable_type lhs_type = lhs->eval_type();
-        variable_type rhs_type = rhs->eval_type();
+    multiply_node(std::shared_ptr<expr_node> left , std::shared_ptr<expr_node> right)
+        : binary_arithmetic_node(std::move(left), std::move(right)) {
+        variable_type lhs_type = lhs()->eval_type();
+        variable_type rhs_type = rhs()->eval_type();
 
         if (arithmetic_type_cast(lhs_type, rhs_type) == variable_type::error) {
             throw_type_error("invalid operator * between {} and {}", lhs_type, rhs_type);
@@ -291,10 +292,10 @@ class multiply_node final : public binary_arithmetic_node {
 
 class divide_node final : public binary_arithmetic_node {
  public:
-    divide_node(std::shared_ptr<expr_node> lhs , std::shared_ptr<expr_node> rhs)
-        : binary_arithmetic_node(lhs, rhs) {
-        variable_type lhs_type = lhs->eval_type();
-        variable_type rhs_type = rhs->eval_type();
+    divide_node(std::shared_ptr<expr_node> left , std::shared_ptr<expr_node> right)
+        : binary_arithmetic_node(std::move(left), std::move(right)) {
+        variable_type lhs_type = lhs()->eval_type();
+        variable_type rhs_type = rhs()->eval_type();
 
         if (arithmetic_type_cast(lhs_type, rhs_type) == variable_type::error) {
             throw_type_error("invalid operator / between {} and {}", lhs_type, rhs_type);
@@ -328,10 +329,10 @@ class divide_node final : public binary_arithmetic_node {
 
 class modulus_node final : public binary_arithmetic_node {
  public:
-    modulus_node(std::shared_ptr<expr_node> lhs , std::shared_ptr<expr_node> rhs)
-        : binary_arithmetic_node(lhs, rhs) {
-        variable_type lhs_type = lhs->eval_type();
-        variable_type rhs_type = rhs->eval_type();
+    modulus_node(std::shared_ptr<expr_node> left , std::shared_ptr<expr_node> right)
+        : binary_arithmetic_node(std::move(left), std::move(right)) {
+        variable_type lhs_type = lhs()->eval_type();
+        variable_type rhs_type = rhs()->eval_type();
 
         if (!is_both_int(lhs_type, rhs_type)) {
             throw_type_error("invalid operator % between {} and {}", lhs_type, rhs_type);
@@ -348,13 +349,14 @@ class modulus_node final : public binary_arithmetic_node {
 
 class logical_and_node : public binary_expr_node {
  public:
-    logical_and_node(std::shared_ptr<expr_node> lhs, std::shared_ptr<expr_node> rhs)
-        : binary_expr_node(lhs, rhs) {
-        variable_type lhs_type = lhs->eval_type();
-        variable_type rhs_type = rhs->eval_type();
+    logical_and_node(std::shared_ptr<expr_node> left, std::shared_ptr<expr_node> right)
+        : binary_expr_node(std::move(left), std::move(right)) {
+        variable_type lhs_type = lhs()->eval_type();
+        variable_type rhs_type = rhs()->eval_type();
 
-        if (!is_both_boolean(lhs_type, rhs_type))
+        if (!is_both_boolean(lhs_type, rhs_type)) {
             throw_type_error("invalid operator && between {} and {}", lhs_type, rhs_type);
+        }
     }
 
     void evaluate() override {
@@ -372,13 +374,14 @@ class logical_and_node : public binary_expr_node {
 
 class logical_or_node : public binary_expr_node {
  public:
-    logical_or_node(std::shared_ptr<expr_node> lhs, std::shared_ptr<expr_node> rhs)
-        : binary_expr_node(lhs, rhs) {
-        variable_type lhs_type = lhs->eval_type();
-        variable_type rhs_type = rhs->eval_type();
+    logical_or_node(std::shared_ptr<expr_node> left, std::shared_ptr<expr_node> right)
+        : binary_expr_node(std::move(left), std::move(right)) {
+        variable_type lhs_type = lhs()->eval_type();
+        variable_type rhs_type = rhs()->eval_type();
 
-        if (!is_both_boolean(lhs_type, rhs_type))
+        if (!is_both_boolean(lhs_type, rhs_type)) {
             throw_type_error("invalid operator || between {} and {}", lhs_type, rhs_type);
+        }
     }
 
     void evaluate() override {
@@ -396,10 +399,10 @@ class logical_or_node : public binary_expr_node {
 
 class bit_and_node : public binary_expr_node {
  public:
-    explicit bit_and_node(const std::shared_ptr<expr_node> &lhs, const std::shared_ptr<expr_node> &rhs)
-        : binary_expr_node(lhs, rhs) {
-        variable_type lhs_type = lhs->eval_type();
-        variable_type rhs_type = rhs->eval_type();
+    explicit bit_and_node(std::shared_ptr<expr_node> left, std::shared_ptr<expr_node> right)
+        : binary_expr_node(std::move(left), std::move(right)) {
+        variable_type lhs_type = lhs()->eval_type();
+        variable_type rhs_type = rhs()->eval_type();
 
         if (!is_both_int(lhs_type, rhs_type)) {
             throw_type_error("invalid operator & between {} and {}", lhs_type, rhs_type);
@@ -418,10 +421,10 @@ class bit_and_node : public binary_expr_node {
 
 class bit_or_node : public binary_expr_node {
  public:
-    explicit bit_or_node(const std::shared_ptr<expr_node> &lhs, const std::shared_ptr<expr_node> &rhs)
-        : binary_expr_node(lhs, rhs) {
-        variable_type lhs_type = lhs->eval_type();
-        variable_type rhs_type = rhs->eval_type();
+    explicit bit_or_node(std::shared_ptr<expr_node> left, std::shared_ptr<expr_node> right)
+        : binary_expr_node(std::move(left), std::move(right)) {
+        variable_type lhs_type = lhs()->eval_type();
+        variable_type rhs_type = rhs()->eval_type();
 
         if (!is_both_int(lhs_type, rhs_type)) {
             throw_type_error("invalid operator | between {} and {}", lhs_type, rhs_type);
@@ -440,10 +443,10 @@ class bit_or_node : public binary_expr_node {
 
 class bit_xor_node : public binary_expr_node {
  public:
-    explicit bit_xor_node(const std::shared_ptr<expr_node> &lhs, const std::shared_ptr<expr_node> &rhs)
-        : binary_expr_node(lhs, rhs) {
-        variable_type lhs_type = lhs->eval_type();
-        variable_type rhs_type = rhs->eval_type();
+    explicit bit_xor_node(std::shared_ptr<expr_node> left, std::shared_ptr<expr_node> right)
+        : binary_expr_node(std::move(left), std::move(right)) {
+        variable_type lhs_type = lhs()->eval_type();
+        variable_type rhs_type = rhs()->eval_type();
 
         if (!is_both_int(lhs_type, rhs_type)) {
             throw_type_error("invalid operator ^ between {} and {}", lhs_type, rhs_type);
@@ -462,10 +465,10 @@ class bit_xor_node : public binary_expr_node {
 
 class shift_left_node : public binary_expr_node {
  public:
-    explicit shift_left_node(const std::shared_ptr<expr_node> &lhs, const std::shared_ptr<expr_node> &rhs)
-        : binary_expr_node(lhs, rhs) {
-        variable_type lhs_type = lhs->eval_type();
-        variable_type rhs_type = rhs->eval_type();
+    explicit shift_left_node(std::shared_ptr<expr_node> left, std::shared_ptr<expr_node> right)
+        : binary_expr_node(std::move(left), std::move(right)) {
+        variable_type lhs_type = lhs()->eval_type();
+        variable_type rhs_type = rhs()->eval_type();
 
         if (!is_both_int(lhs_type, rhs_type)) {
             throw_type_error("invalid operator << between {} and {}", lhs_type, rhs_type);
@@ -489,10 +492,10 @@ class shift_left_node : public binary_expr_node {
 
 class shift_right_node : public binary_expr_node {
  public:
-    explicit shift_right_node(const std::shared_ptr<expr_node> &lhs, const std::shared_ptr<expr_node> &rhs)
-        : binary_expr_node(lhs, rhs) {
-        variable_type lhs_type = lhs->eval_type();
-        variable_type rhs_type = rhs->eval_type();
+    explicit shift_right_node(std::shared_ptr<expr_node> left, std::shared_ptr<expr_node> right)
+        : binary_expr_node(std::move(left), std::move(right)) {
+        variable_type lhs_type = lhs()->eval_type();
+        variable_type rhs_type = rhs()->eval_type();
 
         if (!is_both_int(lhs_type, rhs_type)) {
             throw_execute_error("invalid operator << between {} and {}", lhs_type, rhs_type);
@@ -560,13 +563,14 @@ class relation_node : public binary_expr_node {
 
 class less_node : public relation_node {
  public:
-    less_node(std::shared_ptr<expr_node> lhs, std::shared_ptr<expr_node> rhs)
-        : relation_node(lhs, rhs) {
-        variable_type lhs_type = lhs->eval_type();
-        variable_type rhs_type = rhs->eval_type();
+    less_node(std::shared_ptr<expr_node> left, std::shared_ptr<expr_node> right)
+        : relation_node(std::move(left), std::move(right)) {
+        variable_type lhs_type = lhs()->eval_type();
+        variable_type rhs_type = rhs()->eval_type();
         variable_type result_type = binary_expr_type(lhs_type, token_type::less, rhs_type);
-        if (result_type == variable_type::error)
+        if (result_type == variable_type::error) {
             throw_type_error("invalid operator < between {} and {}", lhs_type, rhs_type);
+        }
     }
 
     void evaluate() override {
@@ -595,13 +599,14 @@ class less_node : public relation_node {
 
 class less_equal_node : public relation_node {
  public:
-    less_equal_node(std::shared_ptr<expr_node> lhs, std::shared_ptr<expr_node> rhs)
-        : relation_node(lhs, rhs) {
-        variable_type lhs_type = lhs->eval_type();
-        variable_type rhs_type = rhs->eval_type();
+    less_equal_node(std::shared_ptr<expr_node> left, std::shared_ptr<expr_node> right)
+        : relation_node(std::move(left), std::move(right)) {
+        variable_type lhs_type = lhs()->eval_type();
+        variable_type rhs_type = rhs()->eval_type();
         variable_type result_type = binary_expr_type(lhs_type, token_type::less, rhs_type);
-        if (result_type == variable_type::error)
+        if (result_type == variable_type::error) {
             throw_type_error("invalid operator <= between {} and {}", lhs_type, rhs_type);
+        }
     }
 
     void evaluate() override {
@@ -630,13 +635,14 @@ class less_equal_node : public relation_node {
 
 class greater_node : public relation_node {
  public:
-    greater_node(std::shared_ptr<expr_node> lhs, std::shared_ptr<expr_node> rhs)
-        : relation_node(lhs, rhs) {
-        variable_type lhs_type = lhs->eval_type();
-        variable_type rhs_type = rhs->eval_type();
+    greater_node(std::shared_ptr<expr_node> left, std::shared_ptr<expr_node> right)
+        : relation_node(std::move(left), std::move(right)) {
+        variable_type lhs_type = lhs()->eval_type();
+        variable_type rhs_type = rhs()->eval_type();
         variable_type result_type = binary_expr_type(lhs_type, token_type::less, rhs_type);
-        if (result_type == variable_type::error)
+        if (result_type == variable_type::error) {
             throw_type_error("invalid operator > between {} and {}", lhs_type, rhs_type);
+        }
     }
 
     void evaluate() override {
@@ -665,13 +671,14 @@ class greater_node : public relation_node {
 
 class greater_equal_node : public relation_node {
  public:
-    greater_equal_node(std::shared_ptr<expr_node> lhs, std::shared_ptr<expr_node> rhs)
-        : relation_node(lhs, rhs) {
-        variable_type lhs_type = lhs->eval_type();
-        variable_type rhs_type = rhs->eval_type();
+    greater_equal_node(std::shared_ptr<expr_node> left, std::shared_ptr<expr_node> right)
+        : relation_node(std::move(left), std::move(right)) {
+        variable_type lhs_type = lhs()->eval_type();
+        variable_type rhs_type = rhs()->eval_type();
         variable_type result_type = binary_expr_type(lhs_type, token_type::less, rhs_type);
-        if (result_type == variable_type::error)
+        if (result_type == variable_type::error) {
             throw_type_error("invalid operator >= between {} and {}", lhs_type, rhs_type);
+        }
     }
 
     void evaluate() override {
@@ -700,13 +707,14 @@ class greater_equal_node : public relation_node {
 
 class equal_node : public relation_node {
  public:
-    equal_node(std::shared_ptr<expr_node> lhs, std::shared_ptr<expr_node> rhs)
-        : relation_node(lhs, rhs) {
-        variable_type lhs_type = lhs->eval_type();
-        variable_type rhs_type = rhs->eval_type();
+    equal_node(std::shared_ptr<expr_node> left, std::shared_ptr<expr_node> right)
+        : relation_node(std::move(left), std::move(right)) {
+        variable_type lhs_type = lhs()->eval_type();
+        variable_type rhs_type = rhs()->eval_type();
         variable_type result_type = binary_expr_type(lhs_type, token_type::less, rhs_type);
-        if (result_type == variable_type::error)
+        if (result_type == variable_type::error) {
             throw_type_error("invalid operator == between {} and {}", lhs_type, rhs_type);
+        }
     }
 
     void evaluate() override {
@@ -735,13 +743,14 @@ class equal_node : public relation_node {
 
 class not_equal_node : public relation_node {
  public:
-    not_equal_node(std::shared_ptr<expr_node> lhs, std::shared_ptr<expr_node> rhs)
-        : relation_node(lhs, rhs) {
-        variable_type lhs_type = lhs->eval_type();
-        variable_type rhs_type = rhs->eval_type();
+    not_equal_node(std::shared_ptr<expr_node> left, std::shared_ptr<expr_node> right)
+        : relation_node(std::move(left), std::move(right)) {
+        variable_type lhs_type = lhs()->eval_type();
+        variable_type rhs_type = rhs()->eval_type();
         variable_type result_type = binary_expr_type(lhs_type, token_type::less, rhs_type);
-        if (result_type == variable_type::error)
+        if (result_type == variable_type::error) {
             throw_type_error("invalid operator != between {} and {}", lhs_type, rhs_type);
+        }
     }
 
     void evaluate() override {
@@ -788,16 +797,18 @@ class negative_node : public unary_node {
  public:
     explicit negative_node(std::shared_ptr<expr_node> exp)
         : unary_node(std::move(exp)) {
-        if (expr()->eval_type() != variable_type::integer && expr()->eval_type() != variable_type::floating)
+        if (expr()->eval_type() != variable_type::integer && expr()->eval_type() != variable_type::floating) {
             throw_type_error("invalid unary operator - for {}", eval_type());
+        }
     }
 
     void evaluate() override {
         expr()->evaluate();
-        if (expr()->eval_type() == variable_type::integer)
+        if (expr()->eval_type() == variable_type::integer) {
             set_value(-expr()->get<int32_t>());
-        else
+        } else {
             set_value(-expr()->get<double>());
+        }
     }
 };
 
@@ -867,8 +878,8 @@ class boolean_node : public expr_node {
 
 class string_node : public expr_node {
  public:
-    explicit string_node(std::string s) {
-        set_value(std::move(s));
+    explicit string_node(std::string str) {
+        set_value(std::move(str));
     }
 
     void evaluate() override {}
@@ -907,7 +918,7 @@ class array_node : public expr_node {
 
     void set(std::size_t index, value_t value) {
         array &data = get<array>();
-        data[index] = value;
+        data[index] = std::move(value);
     }
 
     [[nodiscard]]

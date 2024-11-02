@@ -9,9 +9,9 @@
 #include <unordered_map>    // unordered_map
 #include <cassert>          // assert
 
-#include "exception.h"
-#include "input_adapter.h"
-#include "position_t.h"
+#include "exception.h"      // throw_syntax_error
+#include "input_adapter.h"  // input_stream_adapter
+#include "position_t.h"     // position_t
 
 namespace neroll {
 
@@ -575,7 +575,6 @@ class lexer {
                         case '7':
                         case '8':
                         case '9':
-                            // add(current_);
                             previous_state = state;
                             state = 8;
                             break;
@@ -586,21 +585,21 @@ class lexer {
                     }
                     break;
                 default:
-                    throw std::runtime_error("invaild state");
+                    throw std::runtime_error("invalid state");
             }
         }
-        // check invaid number such as 123a
+        // check invalid number such as 123a
         if (std::isalpha(current_)) {
             return token{token_string_, token_type::parse_error, position_};
         }
         unget();
         if (previous_state == 2 || previous_state == 3) {
-            return token(token_string_, token_type::literal_int, position_);
+            return {token_string_, token_type::literal_int, position_};
         }
         if (previous_state == 5 || previous_state == 8) {
-            return token(token_string_, token_type::literal_float, position_);
+            return {token_string_, token_type::literal_float, position_};
         }
-        return token("invalid number literal", token_type::parse_error, position_);
+        return {"invalid number literal", token_type::parse_error, position_};
     }
 
     token scan_identifier() {
