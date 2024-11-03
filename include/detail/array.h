@@ -21,19 +21,19 @@ class array {
     using size_type = std::vector<value_t>::size_type;
 
     [[nodiscard]]
-    size_type size() const {
+    size_type size() const noexcept {
         return data_->size();
     }
 
     [[nodiscard]]
-    bool empty() const {
+    bool empty() const noexcept {
         return data_->empty();
     }
 
-    const value_t &operator[](std::size_t index) const {
+    const value_t &operator[](std::size_t index) const noexcept {
         return data_->operator[](index);
     }
-    value_t &operator[](std::size_t index) {
+    value_t &operator[](std::size_t index) noexcept {
         return data_->operator[](index);
     }
 

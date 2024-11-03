@@ -15,7 +15,7 @@ class ring_buffer {
     ring_buffer() = default;
 
     [[nodiscard]]
-    std::size_t capacity() const {
+    std::size_t capacity() const noexcept {
         return data.size();
     }
 

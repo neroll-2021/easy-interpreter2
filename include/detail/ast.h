@@ -37,10 +37,10 @@ class expr_node : public ast_node {
     }
 
     [[nodiscard]]
-    const value_t &value() const {
+    const value_t &value() const noexcept {
         return value_;
     }
-    value_t &value() {
+    value_t &value() noexcept {
         return value_;
     }
 
@@ -86,12 +86,12 @@ class binary_expr_node : public expr_node {
     virtual ~binary_expr_node() = default;
 
     [[nodiscard]]
-    std::shared_ptr<expr_node> lhs() const {
+    std::shared_ptr<expr_node> lhs() const noexcept {
         return lhs_;
     }
 
     [[nodiscard]]
-    std::shared_ptr<expr_node> rhs() const {
+    std::shared_ptr<expr_node> rhs() const noexcept {
         return rhs_;
     }
 
@@ -764,7 +764,7 @@ class unary_node : public expr_node {
     virtual ~unary_node() = default;
     
     [[nodiscard]]
-    std::shared_ptr<expr_node> expr() const {
+    std::shared_ptr<expr_node> expr() const noexcept {
         return expr_;
     }
 
@@ -901,7 +901,7 @@ class array_node : public expr_node {
     }
 
     [[nodiscard]]
-    variable_type value_type() const {
+    variable_type value_type() const noexcept {
         return value_type_;
     }
 
