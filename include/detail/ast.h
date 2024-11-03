@@ -3,12 +3,15 @@
 
 #include <cstdint>
 #include <limits>
+#include <optional> // optional
 #include <variant>  // variant, get
 #include <string>   // string
 #include <memory>   // shared_ptr
 #include <concepts> // is_same_v
 #include <cassert>  // assert
+#include <utility>  // pair
 
+#include "array.h"
 #include "variable.h"
 #include "exception.h"
 #include "operator.h"
@@ -906,6 +909,73 @@ class array_node : public expr_node {
     variable_type value_type_;
 };
 
+enum class execute_state {
+    normal, broken, continued, returned
+};
+
+class statement_node : public ast_node {
+ public:
+    virtual ~statement_node() {}
+
+    virtual std::pair<execute_state, std::optional<value_t>> execute() = 0;
+};
+
+class expr_stat_node : public statement_node, public expr_node {
+ public:
+    expr_stat_node(std::shared_ptr<expr_node> expr)
+        : expr_(std::move(expr)) {}
+    
+    std::pair<execute_state, std::optional<value_t>> execute() override {
+        expr_->evaluate();
+        return {execute_state::normal, std::nullopt};
+    }
+
+    void evaluate() override {
+        expr_->evaluate();
+    }
+
+ private:
+    std::shared_ptr<expr_node> expr_;
+};
+
+class for_node : public statement_node {
+ public:
+    for_node(std::shared_ptr<expr_stat_node> init,
+             std::shared_ptr<expr_stat_node> condition,
+             std::shared_ptr<expr_node>      update,
+             std::shared_ptr<statement_node> statements)
+        : init_(std::move(init)), condition_(std::move(condition)),
+          update_(std::move(update)), statements_(std::move(statements)) {}
+
+    std::pair<execute_state, std::optional<value_t>> execute() override {
+        assert(condition_->eval_type() == variable_type::boolean);
+        init_->execute();
+        condition_->evaluate();
+        while (condition_->get<bool>()) {
+            auto [state, returned] = statements_->execute();
+            if (state == execute_state::continued) {
+                update_->evaluate();
+                condition_->evaluate();
+                continue;
+            }
+            if (state == execute_state::broken) {
+                break;
+            }
+            if (state == execute_state::returned) {
+                return {execute_state::returned, returned};
+            }
+            update_->evaluate();
+            condition_->evaluate();
+        }
+        return {execute_state::normal, std::nullopt};
+    }
+
+ private:
+    std::shared_ptr<expr_stat_node> init_;
+    std::shared_ptr<expr_stat_node> condition_;
+    std::shared_ptr<expr_node>      update_;
+    std::shared_ptr<statement_node> statements_;
+};
 
 }   // namespace detail
 
