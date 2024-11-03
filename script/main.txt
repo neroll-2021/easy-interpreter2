@@ -21,4 +21,6 @@ println(shift >= shift2);
 while (i >= 100) {
     i = i ^ 1;
     i = i | 1;
+    break;
+    continue;
 }
