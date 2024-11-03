@@ -836,7 +836,7 @@ class int_node : public expr_node {
 
 class float_node : public expr_node {
  public:
-    explicit float_node(float value) {
+    explicit float_node(double value) {
         set_value(value);
     }
 
