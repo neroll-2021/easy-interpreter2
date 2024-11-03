@@ -53,38 +53,14 @@ class expr_node : public ast_node {
     template <typename T>
     auto &get() {
         static_type_check<T>();
-
-        if constexpr (std::is_same_v<T, int>)
-            return std::get<int>(value_);
-        else if constexpr (std::is_same_v<T, double>)
-            return std::get<double>(value_);
-        else if constexpr (std::is_same_v<T, bool>)
-            return std::get<bool>(value_);
-        else if constexpr (std::is_same_v<T, std::string>)
-            return std::get<std::string>(value_);
-        else if constexpr (std::is_same_v<T, char>)
-            return std::get<char>(value_);
-        else
-            return std::get<array>(value_);
+        return std::get<T>(value_);
     }
 
     template <typename T>
     [[nodiscard]]
     const auto &get() const {
         static_type_check<T>();
-
-        if constexpr (std::is_same_v<T, int>)
-            return std::get<int>(value_);
-        else if constexpr (std::is_same_v<T, double>)
-            return std::get<double>(value_);
-        else if constexpr (std::is_same_v<T, bool>)
-            return std::get<bool>(value_);
-        else if constexpr (std::is_same_v<T, std::string>)
-            return std::get<std::string>(value_);
-        else if constexpr (std::is_same_v<T, char>)
-            return std::get<char>(value_);
-        else
-            return std::get<array>(value_);
+        return std::get<T>(value_);
     }
 
     virtual void evaluate() = 0;
