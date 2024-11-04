@@ -777,7 +777,7 @@ class negative_node : public unary_node {
     explicit negative_node(std::shared_ptr<expr_node> exp)
         : unary_node(std::move(exp)) {
         if (expr()->eval_type() != variable_type::integer && expr()->eval_type() != variable_type::floating) {
-            throw_type_error("invalid unary operator - for {}", eval_type());
+            throw_type_error("invalid unary operator - for {}", expr()->eval_type());
         }
     }
 
@@ -796,7 +796,7 @@ class logical_not_node : public unary_node {
     explicit logical_not_node(std::shared_ptr<expr_node> exp)
         : unary_node(std::move(exp)) {
         if (expr()->eval_type() != variable_type::boolean) {
-            throw_type_error("invalid unary operator ! for {}", eval_type());
+            throw_type_error("invalid unary operator ! for {}", expr()->eval_type());
         }
     }
 
