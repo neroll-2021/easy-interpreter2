@@ -95,7 +95,7 @@ enum class token_type {
 };
 
 struct token {
-    std::string_view content;
+    std::string content;
     token_type type{};
     std::size_t line{};
     std::size_t column{};
