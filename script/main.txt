@@ -24,3 +24,6 @@ while (i >= 100) {
     break;
     continue;
 }
+
+char ch = 'a';
+char cc = 'ab';

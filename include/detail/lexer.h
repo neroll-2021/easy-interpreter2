@@ -315,8 +315,16 @@ class lexer {
                 return token{"{", token_type::left_brace, position_};
             case '}':
                 return token{"}", token_type::right_brace, position_};
-            case '\'':
-                return token{"'", token_type::single_quotation, position_};
+            case '\'': {
+                char_int_type next = get();
+                char_int_type end = get();
+                if (end != '\'') {
+                    throw_syntax_error("line {}, column {}: multiple character literal",
+                        position_.lines_read + 1, position_.chars_read_current_line
+                    );
+                }
+                return token{std::string{1, static_cast<char_type>(next)}, token_type::literal_char, position_};
+            }
             case '"':
                 return token{"\"", token_type::double_quotation, position_};
             case '0':
