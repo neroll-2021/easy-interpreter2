@@ -326,7 +326,7 @@ class lexer {
                 return token{std::string{1, static_cast<char_type>(next)}, token_type::literal_char, position_};
             }
             case '"':
-                return token{"\"", token_type::double_quotation, position_};
+                return scan_string();
             case '0':
             case '1':
             case '2':
@@ -370,6 +370,66 @@ class lexer {
         {"continue", token_type::keyword_continue}, {"break", token_type::keyword_break},
         {"return", token_type::keyword_return}
     };
+
+    token scan_string() {
+        reset();
+        while (current_ != std::char_traits<char_type>::eof()) {
+            get();
+            if (current_ == '\n') {
+                throw_syntax_error("line {}, column {}: invalid string literal",
+                    position_.lines_read + 1, position_.chars_read_current_line
+                );
+            }
+            if (current_ == '"' && *(token_string_.rbegin() + 1) != '\\') {
+                break;
+            }
+        }
+        if (current_ == std::char_traits<char_type>::eof()) {
+            throw_syntax_error("line {}, column {}: expect a double quotation",
+                position_.lines_read + 1, position_.chars_read_current_line
+            );
+        }
+        std::string escaped_string;
+        for (std::size_t i = 0; i < token_string_.size(); i++) {
+            if (token_string_[i] == '\\') {
+                char_int_type next = token_string_[i + 1];
+                switch (next) {
+                    case 't':
+                        escaped_string.push_back('\t');
+                        break;
+                    case 'f':
+                        escaped_string.push_back('\f');
+                        break;
+                    case 'r':
+                        escaped_string.push_back('\r');
+                        break;
+                    case 'n':
+                        escaped_string.push_back('\n');
+                        break;
+                    case 'b':
+                        escaped_string.push_back('\b');
+                        break;
+                    case '\\':
+                        escaped_string.push_back('\\');
+                        break;
+                    case '"':
+                        escaped_string.push_back('"');
+                        break;
+                    case '\'':
+                        escaped_string.push_back('\'');
+                        break;
+                    default:
+                        throw_syntax_error("line {}, column {}: invalid escape character \\{}",
+                            position_.lines_read + 1, position_.chars_read_current_line, static_cast<char_type>(current_)
+                        );
+                }
+                i++;
+            } else {
+                escaped_string.push_back(token_string_[i]);
+            }
+        }
+        return {std::move(escaped_string), token_type::literal_string, position_};
+    }
 
     token scan_number() {
         reset();
