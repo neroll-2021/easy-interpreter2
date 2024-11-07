@@ -38,6 +38,8 @@ enum class token_type {
     keyword_break,      // break
     keyword_return,     // return
 
+    keyword_new,        // new
+
     literal_int,        // 123
     literal_float,      // 1.23
     literal_true,       // true
@@ -138,6 +140,8 @@ const char *token_type_name(token_type type) {
             return "break";
         case token_type::keyword_return:
             return "return";
+        case token_type::keyword_new:
+            return "new";
         case token_type::literal_int:
             return "literal int";
         case token_type::literal_float:
@@ -368,7 +372,7 @@ class lexer {
         {"if", token_type::keyword_if}, {"else", token_type::keyword_else},
         {"for", token_type::keyword_for}, {"while", token_type::keyword_while},
         {"continue", token_type::keyword_continue}, {"break", token_type::keyword_break},
-        {"return", token_type::keyword_return}
+        {"return", token_type::keyword_return}, {"new", token_type::keyword_new}
     };
 
     token scan_string() {
