@@ -977,6 +977,35 @@ class for_node : public statement_node {
     std::shared_ptr<statement_node> statements_;
 };
 
+class while_node : public statement_node {
+ public:
+    while_node(std::shared_ptr<expr_node> condition, std::shared_ptr<statement_node> body)
+        : condition_(std::move(condition)), body_(std::move(body)) {}
+
+    std::pair<execute_state, std::optional<value_t>> execute() override {
+        assert(condition_->eval_type() == variable_type::boolean);
+        condition_->evaluate();
+        while (condition_->get<bool>()) {
+            auto [state, returned] = body_->execute();
+            if (state == execute_state::continued) {
+                condition_->evaluate();
+                continue;
+            }
+            if (state == execute_state::broken) {
+                break;
+            }
+            if (state == execute_state::returned) {
+                return {execute_state::returned, returned};
+            }
+        }
+        return {execute_state::normal, std::nullopt};
+    }
+
+ private:
+    std::shared_ptr<expr_node> condition_;
+    std::shared_ptr<statement_node> body_;
+};
+
 }   // namespace detail
 
 }   // namespace script
