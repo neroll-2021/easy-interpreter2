@@ -1006,6 +1006,38 @@ class while_node : public statement_node {
     std::shared_ptr<statement_node> body_;
 };
 
+class continue_node : public statement_node {
+ public:
+    std::pair<execute_state, std::optional<value_t>> execute() override {
+        return {execute_state::continued, std::nullopt};
+    }
+};
+
+class break_node : public statement_node {
+ public:
+    std::pair<execute_state, std::optional<value_t>> execute() override {
+        return {execute_state::broken, std::nullopt};
+    }
+};
+
+class return_node : public statement_node {
+ public:
+    // pass `nullptr` to return void
+    return_node(std::shared_ptr<expr_node> expr)
+        : expr_(std::move(expr)) {}
+
+    std::pair<execute_state, std::optional<value_t>> execute() override {
+        if (expr_ == nullptr) {
+            return {execute_state::returned, std::nullopt};
+        }
+        expr_->evaluate();
+        return {execute_state::returned, expr_->value()};
+    }
+
+ private:
+    std::shared_ptr<expr_node> expr_;
+};
+
 }   // namespace detail
 
 }   // namespace script
