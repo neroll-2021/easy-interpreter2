@@ -9,6 +9,7 @@
 #include <unordered_map>    // unordered_map
 #include <cassert>          // assert
 
+#include "detail/position_t.h"
 #include "exception.h"      // throw_syntax_error
 #include "input_adapter.h"  // input_stream_adapter
 #include "position_t.h"     // position_t
@@ -357,6 +358,11 @@ class lexer {
 
     void rewind() {
         adapter_.rewind();
+    }
+    
+    [[nodiscard]]
+    const position_t &position() const noexcept {
+        return position_;
     }
 
  private:
