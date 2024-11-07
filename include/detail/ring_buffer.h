@@ -19,12 +19,12 @@ class ring_buffer {
         return data.size();
     }
 
-    void put(const T &value) {
+    void put(const T &value) noexcept {
         data[cur_pos] = value;
         cur_pos = (cur_pos + 1) % data.size();
     }
 
-    const T &get_next(std::size_t distance) const {
+    const T &get_next(std::size_t distance) const noexcept {
         assert(distance < data.size());
         return data[(cur_pos + distance) % data.size()];
     }
