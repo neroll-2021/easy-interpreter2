@@ -157,7 +157,8 @@ class int_t : public object {
 template <>
 struct std::formatter<neroll::script::variable_type> {
     constexpr auto parse(std::format_parse_context &context) {
-        if (*context.begin() != '}')
+        auto it = context.begin();
+        if (it != context.end() && *it != '}')
             throw std::format_error("invalid format specifier");
         return context.begin();
     }
