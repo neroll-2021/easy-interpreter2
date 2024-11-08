@@ -322,6 +322,11 @@ class lexer {
                 return token{"}", token_type::right_brace, position_};
             case '\'': {
                 char_int_type next = get();
+                if (next == '\'') {
+                    throw_syntax_error("line {}, column {}: empty char literal",
+                        position_.lines_read + 1, position_.chars_read_current_line
+                    );
+                }
                 char_int_type end = get();
                 if (end != '\'') {
                     throw_syntax_error("line {}, column {}: multiple character literal",
