@@ -36,6 +36,30 @@ class parser {
     lexer lexer_;
     ring_buffer<detail::token, look_ahead_count> buffer_;
 
+    std::shared_ptr<expr_node> parse_unary() {
+        switch (current_token_type()) {
+            case token_type::plus:
+                match(token_type::plus);
+                return parse_unary();
+            case token_type::minus:
+                match(token_type::minus);
+                return std::make_shared<negative_node>(parse_unary());
+            case token_type::bit_not:
+                match(token_type::bit_not);
+                return std::make_shared<bit_not_node>(parse_unary());
+            case token_type::logical_not:
+                match(token_type::logical_not);
+                return std::make_shared<logical_not_node>(parse_unary());
+            default:
+                return parse_primary();
+        }
+    }
+
+    std::shared_ptr<expr_node> parse_postfix() {
+        // TODO
+        return parse_primary();
+    }
+
     std::shared_ptr<expr_node> parse_primary() {
         switch (current_token_type()) {
             case token_type::literal_int:
