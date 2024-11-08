@@ -1,6 +1,7 @@
 #include <exception>
 #include <print>
 #include <fstream>
+#include <string>
 #include "parser.h"
 using namespace neroll::script;
 int main() {
@@ -12,7 +13,8 @@ int main() {
     parser psr{detail::lexer{detail::input_stream_adapter{fin}}};
 
     try {
-        
+        auto node = psr.parse_primary();
+        std::println("value: {}", node->get<bool>());
     } catch (std::exception &e) {
         std::println("{}", e.what());
     }
