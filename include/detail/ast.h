@@ -22,6 +22,15 @@ namespace script {
 
 namespace detail {
 
+// only for test
+template <typename T>
+constexpr static void static_type_check() {
+    static_assert(std::is_same_v<T, int32_t> ||
+        std::is_same_v<T, double> || std::is_same_v<T, bool> ||
+        std::is_same_v<T, std::string> || std::is_same_v<T, char> ||
+        std::is_same_v<T, array>);
+}
+
 class ast_node {
  public:
     virtual ~ast_node() = default;
@@ -42,15 +51,6 @@ class expr_node : public ast_node {
     }
     value_t &value() noexcept {
         return value_;
-    }
-
-    // only for test
-    template <typename T>
-    constexpr static void static_type_check() {
-        static_assert(std::is_same_v<T, int32_t> ||
-            std::is_same_v<T, double> || std::is_same_v<T, bool> ||
-            std::is_same_v<T, std::string> || std::is_same_v<T, char> ||
-            std::is_same_v<T, array>);
     }
 
     template <typename T>
