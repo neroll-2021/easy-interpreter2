@@ -51,9 +51,30 @@ class parser {
             case token_type::literal_char:
                 return make_node_and_match<char>(token_type::literal_char);
             case token_type::identifier:
+                // return parse_variable_or_function_call();
             default:
                 throw_syntax_error("not supported");
         }
+    }
+
+    std::shared_ptr<expr_node> parse_variable_or_function_call() {
+        match(token_type::identifier);
+        if (current_token_type() == token_type::left_parenthesis) {
+            return parse_function_call();
+        }
+        return parse_variable();
+    }
+
+    std::shared_ptr<expr_node> parse_variable() {
+        // TODO
+        std::println("parse variable");
+        return nullptr;
+    }
+
+    std::shared_ptr<expr_node> parse_function_call() {
+        // TODO
+        std::println(("parse function call"));
+        return nullptr;
     }
 
     template <typename T>
