@@ -1,4 +1,4 @@
-this(1, 2);
+~1;
 
 function add(int x, int y) : int {
     return x + y;

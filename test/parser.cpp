@@ -4,6 +4,7 @@
 #include <string>
 #include "parser.h"
 using namespace neroll::script;
+using namespace neroll::script::detail;
 int main() {
     std::ifstream fin("../../../../script/main.txt");
     if (!fin.is_open()) {
@@ -13,8 +14,9 @@ int main() {
     parser psr{detail::lexer{detail::input_stream_adapter{fin}}};
 
     try {
-        auto node = psr.parse_primary();
-        std::println("value: {}", node->get<bool>());
+        auto node = psr.parse_unary();
+        node->evaluate();
+        std::println("{}", node->get<int32_t>());
     } catch (std::exception &e) {
         std::println("{}", e.what());
     }
