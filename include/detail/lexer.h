@@ -333,7 +333,7 @@ class lexer {
                         position_.lines_read + 1, position_.chars_read_current_line
                     );
                 }
-                return token{std::string{1, static_cast<char_type>(next)}, token_type::literal_char, position_};
+                return token{std::string(1, static_cast<char_type>(next)), token_type::literal_char, position_};
             }
             case '"':
                 return scan_string();
