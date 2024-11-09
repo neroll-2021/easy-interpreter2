@@ -3,14 +3,17 @@
 
 #include <cassert>
 #include <cstdint>
+#include <initializer_list>
 #include <memory>
 #include <print>
 #include <string>
+#include <utility>
 #include "detail/array.h"
 #include "detail/ast.h"
 #include "detail/lexer.h"
 #include "detail/ring_buffer.h"
 #include "exception.h"
+#include "variable.h"
 
 namespace neroll::script {
 
@@ -35,6 +38,39 @@ class parser {
 
     lexer lexer_;
     ring_buffer<detail::token, look_ahead_count> buffer_;
+
+    std::shared_ptr<expr_node> parse_cast() {
+        if (current_token_type() == token_type::left_parenthesis) {
+            match(token_type::left_parenthesis);
+            token_type type_name = current_token_type();
+
+            match("type name", {
+                token_type::keyword_int, token_type::keyword_float,
+                token_type::keyword_boolean, token_type::keyword_string,
+                token_type::keyword_char
+            });
+            match(token_type::right_parenthesis);
+
+            std::shared_ptr<expr_node> expr = parse_cast();
+
+            switch (type_name) {
+                case token_type::keyword_int:
+                    return std::make_shared<type_cast_node>(std::move(expr), variable_type::integer);
+                case token_type::keyword_float:
+                    return std::make_shared<type_cast_node>(std::move(expr), variable_type::floating);
+                case token_type::keyword_boolean:
+                    return std::make_shared<type_cast_node>(std::move(expr), variable_type::boolean);
+                case token_type::keyword_string:
+                    return std::make_shared<type_cast_node>(std::move(expr), variable_type::string);
+                case token_type::keyword_char:
+                    return std::make_shared<type_cast_node>(std::move(expr), variable_type::character);
+                default:
+                    std::unreachable();
+            }
+            std::unreachable();
+        }
+        return parse_unary();
+    }
 
     std::shared_ptr<expr_node> parse_unary() {
         switch (current_token_type()) {
@@ -166,6 +202,21 @@ class parser {
                 expect, current_token_type()
             );
         }
+    }
+
+    void match(std::string_view expect_token, std::initializer_list<token_type> expect_types) {
+        for (const auto type : expect_types) {
+            if (current_token_type() == type) {
+                match(type);
+                return;
+            }
+        }
+        const auto &position = lexer_.position();
+        throw_syntax_error(
+            "line {}, column {}: expect {}, found '{}'",
+            position.lines_read + 1, position.chars_read_current_line + 1,
+            expect_token, current_token_type()
+        );
     }
 };
 
