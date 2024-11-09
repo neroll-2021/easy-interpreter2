@@ -16,9 +16,9 @@ int main() {
     parser psr{detail::lexer{detail::input_stream_adapter{fin}}};
 
     try {
-        auto node = psr.parse_multiplicative();
+        auto node = psr.parse_additive();
         node->evaluate();
-        std::println("{}", node->get<int32_t>());
+        std::println("{}", node->get<double>());
     } catch (std::exception &e) {
         std::println("{}", e.what());
     }
