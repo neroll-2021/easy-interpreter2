@@ -965,6 +965,59 @@ class type_cast_node : public unary_node {
     variable_type target_type_;
 };
 
+class new_node : public expr_node {
+ public:
+    new_node(variable_type type, std::vector<std::shared_ptr<expr_node>> sizes)
+        : elem_type(type), size_per_dim(std::move(sizes)) {}
+
+    void evaluate() override {
+        set_value(build_array(elem_type, 0));
+    }
+
+ private:
+    variable_type elem_type;
+    std::vector<std::shared_ptr<expr_node>> size_per_dim;
+
+    array build_array(variable_type elem_type, std::size_t dimension) {
+        assert(!size_per_dim.empty());
+        assert(dimension < size_per_dim.size());
+        if (dimension == size_per_dim.size() - 1) {
+            array arr;
+            size_per_dim[dimension]->evaluate();
+            auto size = size_per_dim[dimension]->get<int32_t>();
+            for (int32_t i = 0; i < size; i++) {
+                switch (elem_type) {
+                    case variable_type::integer:
+                        arr.push_back(int32_t{});
+                        break;
+                    case variable_type::floating:
+                        arr.push_back(double{});
+                        break;
+                    case variable_type::boolean:
+                        arr.push_back(bool{});
+                        break;
+                    case variable_type::string:
+                        arr.push_back(std::string{});
+                        break;
+                    case variable_type::character:
+                        arr.push_back(char{});
+                        break;
+                    default:
+                        std::unreachable();
+                }
+            }
+            return arr;
+        }
+        array arr;
+        size_per_dim[dimension]->evaluate();
+            auto size = size_per_dim[dimension]->get<int32_t>();
+        for (int32_t i = 0; i < size; i++) {
+            arr.push_back(build_array(elem_type, dimension + 1));
+        }
+        return arr;
+    }
+};
+
 class int_node : public expr_node {
  public:
     explicit int_node(int32_t value) {

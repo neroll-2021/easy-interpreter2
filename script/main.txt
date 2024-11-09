@@ -1,4 +1,4 @@
-new int[5][10];
+new int[(int)3.56][10];
 
 function add(int x, int y) : int {
     return x + y;

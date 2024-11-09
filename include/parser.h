@@ -303,55 +303,17 @@ class parser {
         });
         variable_type elem_type = to_variable_type(type_name);
 
-        std::vector<std::size_t> size_per_dim;
+        std::vector<std::shared_ptr<expr_node>> size_per_dim;
         while (current_token_type() == token_type::left_bracket) {
             match(token_type::left_bracket);
             std::shared_ptr<expr_node> size_node = parse_expression();
-            // std::println("eee");
             if (size_node->eval_type() != variable_type::integer) {
                 throw_type_error("array size must be integer");
             }
-            auto size = size_node->get<int32_t>();
-            size_per_dim.push_back(size);
+            size_per_dim.push_back(std::move(size_node));
             match(token_type::right_bracket);
         }
-        array value = build_array(elem_type, 0, size_per_dim);
-        return std::make_shared<array_node>(std::move(value), elem_type);
-    }
-
-    array build_array(variable_type elem_type, std::size_t dimension, const std::vector<std::size_t> &size_per_dim) {
-        assert(!size_per_dim.empty());
-        assert(dimension < size_per_dim.size());
-        if (dimension == size_per_dim.size() - 1) {
-            array arr;
-            for (std::size_t i = 0; i < size_per_dim[dimension]; i++) {
-                switch (elem_type) {
-                    case variable_type::integer:
-                        arr.push_back(int32_t{});
-                        break;
-                    case variable_type::floating:
-                        arr.push_back(double{});
-                        break;
-                    case variable_type::boolean:
-                        arr.push_back(bool{});
-                        break;
-                    case variable_type::string:
-                        arr.push_back(std::string{});
-                        break;
-                    case variable_type::character:
-                        arr.push_back(char{});
-                        break;
-                    default:
-                        std::unreachable();
-                }
-            }
-            return arr;
-        }
-        array arr;
-        for (std::size_t i = 0; i < size_per_dim[dimension]; i++) {
-            arr.push_back(build_array(elem_type, dimension + 1, size_per_dim));
-        }
-        return arr;
+        return std::make_shared<new_node>(elem_type, std::move(size_per_dim));
     }
 
     std::shared_ptr<expr_node> parse_postfix() {
