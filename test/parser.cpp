@@ -16,9 +16,9 @@ int main() {
     parser psr{detail::lexer{detail::input_stream_adapter{fin}}};
 
     try {
-        auto node = psr.parse_equality();
+        auto node = psr.parse_bit_or();
         node->evaluate();
-        std::println("{}", node->get<bool>());
+        std::println("{}", node->get<int32_t>());
     } catch (std::exception &e) {
         std::println("{}", e.what());
     }
