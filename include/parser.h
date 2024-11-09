@@ -39,6 +39,26 @@ class parser {
     lexer lexer_;
     ring_buffer<detail::token, look_ahead_count> buffer_;
 
+    std::shared_ptr<expr_node> parse_additive() {
+        std::shared_ptr<expr_node> lhs = parse_multiplicative();
+        std::shared_ptr<expr_node> rhs = nullptr;
+        std::shared_ptr<expr_node> op = nullptr;
+        while (current_token_type() == token_type::plus || current_token_type() == token_type::minus) {
+            if (current_token_type() == token_type::plus) {
+                match(token_type::plus);
+                rhs = parse_multiplicative();
+                op = std::make_shared<add_node>(std::move(lhs), std::move(rhs));
+            } else  {
+                match(token_type::minus);
+                rhs = parse_multiplicative();
+                op = std::make_shared<minus_node>(std::move(lhs), std::move(rhs));
+            }
+            lhs = op;
+            op = nullptr;
+        }
+        return lhs;
+    }
+
     std::shared_ptr<expr_node> parse_multiplicative() {
         std::shared_ptr<expr_node> lhs = parse_cast();
         std::shared_ptr<expr_node> rhs = nullptr;
