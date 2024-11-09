@@ -285,6 +285,16 @@ class divide_node final : public binary_arithmetic_node {
         lhs()->evaluate();
         rhs()->evaluate();
 
+        if (rhs()->eval_type() == variable_type::integer) {
+            if (rhs()->get<int32_t>() == 0) {
+                throw_execute_error("division by zero");
+            }
+        } else if (rhs()->eval_type() == variable_type::floating) {
+            if (rhs()->get<double>() == 0) {
+                throw_execute_error("division by zero");
+            }
+        }
+
         using a = binary_arithmetic_node;
 
         const static std::array<std::array<void(binary_arithmetic_node::*)(), 2>, 2> table {{
