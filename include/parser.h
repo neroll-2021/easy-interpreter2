@@ -39,6 +39,31 @@ class parser {
     lexer lexer_;
     ring_buffer<detail::token, look_ahead_count> buffer_;
 
+    std::shared_ptr<expr_node> parse_multiplicative() {
+        std::shared_ptr<expr_node> lhs = parse_cast();
+        std::shared_ptr<expr_node> rhs = nullptr;
+        std::shared_ptr<expr_node> op = nullptr;
+        while (current_token_type() == token_type::asterisk || current_token_type() == token_type::slash ||
+               current_token_type() == token_type::mod) {
+            if (current_token_type() == token_type::asterisk) {
+                match(token_type::asterisk);
+                rhs = parse_cast();
+                op = std::make_shared<multiply_node>(std::move(lhs), std::move(rhs));
+            } else if (current_token_type() == token_type::slash) {
+                match(token_type::slash);
+                rhs = parse_cast();
+                op = std::make_shared<divide_node>(std::move(lhs), std::move(rhs));
+            } else {
+                match(token_type::mod);
+                rhs = parse_cast();
+                op = std::make_shared<modulus_node>(std::move(lhs), std::move(rhs));
+            }
+            lhs = op;
+            op = nullptr;
+        }
+        return lhs;
+    }
+
     std::shared_ptr<expr_node> parse_cast() {
         if (current_token_type() == token_type::left_parenthesis) {
             match(token_type::left_parenthesis);
