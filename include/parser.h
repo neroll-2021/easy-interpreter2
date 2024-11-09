@@ -39,6 +39,34 @@ class parser {
     lexer lexer_;
     ring_buffer<detail::token, look_ahead_count> buffer_;
 
+    std::shared_ptr<expr_node> parse_logical_or() {
+        std::shared_ptr<expr_node> lhs = parse_logical_and();
+        std::shared_ptr<expr_node> rhs = nullptr;
+        std::shared_ptr<expr_node> op = nullptr;
+        while (current_token_type() == token_type::logical_or) {
+            match(token_type::logical_or);
+            rhs = parse_logical_and();
+            op = std::make_shared<logical_or_node>(std::move(lhs), std::move(rhs));
+            lhs = op;
+            op = nullptr;
+        }
+        return lhs;
+    }
+
+    std::shared_ptr<expr_node> parse_logical_and() {
+        std::shared_ptr<expr_node> lhs = parse_bit_or();
+        std::shared_ptr<expr_node> rhs = nullptr;
+        std::shared_ptr<expr_node> op = nullptr;
+        while (current_token_type() == token_type::logical_and) {
+            match(token_type::logical_and);
+            rhs = parse_bit_or();
+            op = std::make_shared<logical_and_node>(std::move(lhs), std::move(rhs));
+            lhs = op;
+            op = nullptr;
+        }
+        return lhs;
+    }
+
     std::shared_ptr<expr_node> parse_bit_or() {
         std::shared_ptr<expr_node> lhs = parse_bit_xor();
         std::shared_ptr<expr_node> rhs = nullptr;
