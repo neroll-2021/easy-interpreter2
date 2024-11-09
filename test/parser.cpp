@@ -1,7 +1,9 @@
+#include <cstdint>
 #include <exception>
 #include <print>
 #include <fstream>
 #include <string>
+#include "variable.h"
 #include "parser.h"
 using namespace neroll::script;
 using namespace neroll::script::detail;
@@ -14,9 +16,9 @@ int main() {
     parser psr{detail::lexer{detail::input_stream_adapter{fin}}};
 
     try {
-        auto node = psr.parse_unary();
+        auto node = psr.parse_cast();
         node->evaluate();
-        std::println("{}", node->get<int32_t>());
+        std::println("{}", node->get<double>());
     } catch (std::exception &e) {
         std::println("{}", e.what());
     }
