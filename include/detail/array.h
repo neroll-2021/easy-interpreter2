@@ -20,6 +20,8 @@ class array {
  public:
     using size_type = std::vector<value_t>::size_type;
 
+    array() : data_(std::make_shared<std::vector<value_t>>()) {}
+
     [[nodiscard]]
     size_type size() const noexcept {
         return data_->size();
@@ -28,6 +30,10 @@ class array {
     [[nodiscard]]
     bool empty() const noexcept {
         return data_->empty();
+    }
+
+    void push_back(value_t value) {
+        data_->emplace_back(std::move(value));
     }
 
     const value_t &operator[](std::size_t index) const noexcept {
