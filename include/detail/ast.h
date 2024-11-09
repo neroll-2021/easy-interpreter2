@@ -462,6 +462,7 @@ class bit_and_node : public binary_expr_node {
         if (!is_both_int(lhs_type, rhs_type)) {
             throw_type_error("invalid operator & between {} and {}", lhs_type, rhs_type);
         }
+        set_value(int32_t{});
     }
 
     void evaluate() override {
@@ -484,6 +485,7 @@ class bit_or_node : public binary_expr_node {
         if (!is_both_int(lhs_type, rhs_type)) {
             throw_type_error("invalid operator | between {} and {}", lhs_type, rhs_type);
         }
+        set_value(int32_t{});
     }
 
     void evaluate() override {
@@ -506,6 +508,7 @@ class bit_xor_node : public binary_expr_node {
         if (!is_both_int(lhs_type, rhs_type)) {
             throw_type_error("invalid operator ^ between {} and {}", lhs_type, rhs_type);
         }
+        set_value(int32_t{});
     }
 
     void evaluate() override {
