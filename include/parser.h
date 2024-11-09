@@ -39,6 +39,26 @@ class parser {
     lexer lexer_;
     ring_buffer<detail::token, look_ahead_count> buffer_;
 
+    std::shared_ptr<expr_node> parse_equality() {
+        std::shared_ptr<expr_node> lhs = parse_relational();
+        std::shared_ptr<expr_node> rhs = nullptr;
+        std::shared_ptr<expr_node> op = nullptr;
+        while (current_token_type() == token_type::equal || current_token_type() == token_type::not_equal) {
+            if (current_token_type() == token_type::equal) {
+                match(token_type::equal);
+                rhs = parse_relational();
+                op = std::make_shared<equal_node>(std::move(lhs), std::move(rhs));
+            } else {
+                match(token_type::not_equal);
+                rhs = parse_relational();
+                op = std::make_shared<not_equal_node>(std::move(lhs), std::move(rhs));
+            }
+            lhs = op;
+            op = nullptr;
+        }
+        return lhs;
+    }
+
     std::shared_ptr<expr_node> parse_relational() {
         std::shared_ptr<expr_node> lhs = parse_shift();
         std::shared_ptr<expr_node> rhs = nullptr;
