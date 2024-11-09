@@ -18,7 +18,16 @@ int main() {
     try {
         auto node = psr.parse_logical_or();
         node->evaluate();
-        std::println("{}", node->get<bool>());
+        auto arr = node->get<array>();
+
+        for (std::size_t i = 0; i < arr.size(); i++) {
+            auto arr2 = std::get<array>(arr[i]);
+            for (std::size_t j = 0; j < arr2.size(); j++) {
+                std::print("{} ", std::get<int32_t>(arr2[j]));
+            }
+            std::println("");
+        }
+        
     } catch (std::exception &e) {
         std::println("{}", e.what());
     }

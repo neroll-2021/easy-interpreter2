@@ -1,4 +1,4 @@
-1 == 1 && 2 != 2 || -1 == -1;
+new int[5][10];
 
 function add(int x, int y) : int {
     return x + y;
