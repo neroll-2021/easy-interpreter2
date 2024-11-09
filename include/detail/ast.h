@@ -855,6 +855,27 @@ class negative_node : public unary_node {
         if (expr()->eval_type() != variable_type::integer && expr()->eval_type() != variable_type::floating) {
             throw_type_error("invalid unary operator - for {}", expr()->eval_type());
         }
+
+        variable_type type = expr()->eval_type();
+        switch (type) {
+            case variable_type::integer:
+                set_value(int32_t{});
+                break;
+            case variable_type::floating:
+                set_value(double{});
+                break;
+            case variable_type::boolean:
+                set_value(bool{});
+                break;
+            case variable_type::string:
+                set_value(std::string{});
+                break;
+            case variable_type::character:
+                set_value(char{});
+                break;
+            default:
+                std::unreachable();
+        }
     }
 
     void evaluate() override {
