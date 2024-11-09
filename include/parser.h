@@ -39,6 +39,35 @@ class parser {
     lexer lexer_;
     ring_buffer<detail::token, look_ahead_count> buffer_;
 
+    std::shared_ptr<expr_node> parse_relational() {
+        std::shared_ptr<expr_node> lhs = parse_shift();
+        std::shared_ptr<expr_node> rhs = nullptr;
+        std::shared_ptr<expr_node> op = nullptr;
+        while (current_token_type() == token_type::less || current_token_type() == token_type::less_equal ||
+               current_token_type() == token_type::greater || current_token_type() == token_type::greater_equal) {
+            if (current_token_type() == token_type::less) {
+                match(token_type::less);
+                rhs = parse_shift();
+                op = std::make_shared<less_node>(std::move(lhs), std::move(rhs));
+            } else if (current_token_type() == token_type::less_equal) {
+                match(token_type::less_equal);
+                rhs = parse_shift();
+                op = std::make_shared<less_equal_node>(std::move(lhs), std::move(rhs));
+            } else if (current_token_type() == token_type::greater) {
+                match(token_type::greater);
+                rhs = parse_shift();
+                op = std::make_shared<greater_node>(std::move(lhs), std::move(rhs));
+            } else {
+                match(token_type::greater_equal);
+                rhs = parse_shift();
+                op = std::make_shared<greater_equal_node>(std::move(lhs), std::move(rhs));
+            }
+            lhs = op;
+            op = nullptr;
+        }
+        return lhs;
+    }
+
     std::shared_ptr<expr_node> parse_shift() {
         std::shared_ptr<expr_node> lhs = parse_additive();
         std::shared_ptr<expr_node> rhs = nullptr;
