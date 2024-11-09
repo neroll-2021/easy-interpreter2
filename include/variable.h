@@ -37,7 +37,7 @@ const char *variable_type_name(variable_type type) {
 
 variable_type arithmetic_type_cast(variable_type lhs, variable_type rhs) {
     constexpr static std::array<std::array<int, 6>, 6> table{{
-        {0,  2, -1, -1, -1, -1}, {2,  2, -1, -1, -1, -1}, {-1, -1, -1, -1, -1, -1},
+        {0,  1, -1, -1, -1, -1}, {1,  1, -1, -1, -1, -1}, {-1, -1, -1, -1, -1, -1},
         {-1, -1, -1, -1, -1, -1}, {-1, -1, -1, -1, -1, -1}, {-1, -1, -1, -1, -1, -1}
     }};
     auto lhs_index = static_cast<std::size_t>(lhs);

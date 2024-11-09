@@ -238,8 +238,30 @@ class multiply_node final : public binary_arithmetic_node {
         variable_type lhs_type = lhs()->eval_type();
         variable_type rhs_type = rhs()->eval_type();
 
+        variable_type type = arithmetic_type_cast(lhs_type, rhs_type);
+
         if (arithmetic_type_cast(lhs_type, rhs_type) == variable_type::error) {
             throw_type_error("invalid operator * between {} and {}", lhs_type, rhs_type);
+        }
+
+        switch (type) {
+            case variable_type::integer:
+                set_value(int32_t{});
+                break;
+            case variable_type::floating:
+                set_value(double{});
+                break;
+            case variable_type::boolean:
+                set_value(bool{});
+                break;
+            case variable_type::string:
+                set_value(std::string{});
+                break;
+            case variable_type::character:
+                set_value(char{});
+                break;
+            default:
+                std::unreachable();
         }
     }
 
@@ -276,8 +298,30 @@ class divide_node final : public binary_arithmetic_node {
         variable_type lhs_type = lhs()->eval_type();
         variable_type rhs_type = rhs()->eval_type();
 
+        variable_type type = arithmetic_type_cast(lhs_type, rhs_type);
+
         if (arithmetic_type_cast(lhs_type, rhs_type) == variable_type::error) {
             throw_type_error("invalid operator / between {} and {}", lhs_type, rhs_type);
+        }
+
+        switch (type) {
+            case variable_type::integer:
+                set_value(int32_t{});
+                break;
+            case variable_type::floating:
+                set_value(double{});
+                break;
+            case variable_type::boolean:
+                set_value(bool{});
+                break;
+            case variable_type::string:
+                set_value(std::string{});
+                break;
+            case variable_type::character:
+                set_value(char{});
+                break;
+            default:
+                std::unreachable();
         }
     }
 
