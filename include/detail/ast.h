@@ -412,6 +412,7 @@ class logical_and_node : public binary_expr_node {
         if (!is_both_boolean(lhs_type, rhs_type)) {
             throw_type_error("invalid operator && between {} and {}", lhs_type, rhs_type);
         }
+        set_value(bool{});
     }
 
     void evaluate() override {
@@ -437,6 +438,7 @@ class logical_or_node : public binary_expr_node {
         if (!is_both_boolean(lhs_type, rhs_type)) {
             throw_type_error("invalid operator || between {} and {}", lhs_type, rhs_type);
         }
+        set_value(bool{});
     }
 
     void evaluate() override {
@@ -447,7 +449,7 @@ class logical_or_node : public binary_expr_node {
         } else {
             rhs()->evaluate();
             bool rhs_value = rhs()->get<bool>();
-            set_value(lhs_value && rhs_value);
+            set_value(lhs_value || rhs_value);
         }
     }
 };
@@ -579,7 +581,7 @@ class relation_node : public binary_expr_node {
  public:
     relation_node(std::shared_ptr<expr_node> lhs, std::shared_ptr<expr_node> rhs)
         : binary_expr_node(std::move(lhs), std::move(rhs)) {
-
+        set_value(bool{});
     }
 
     template <typename Op>
@@ -867,15 +869,6 @@ class negative_node : public unary_node {
             case variable_type::floating:
                 set_value(double{});
                 break;
-            case variable_type::boolean:
-                set_value(bool{});
-                break;
-            case variable_type::string:
-                set_value(std::string{});
-                break;
-            case variable_type::character:
-                set_value(char{});
-                break;
             default:
                 std::unreachable();
         }
@@ -898,6 +891,7 @@ class logical_not_node : public unary_node {
         if (expr()->eval_type() != variable_type::boolean) {
             throw_type_error("invalid unary operator ! for {}", expr()->eval_type());
         }
+        set_value(bool{});
     }
 
     void evaluate() override {
@@ -919,6 +913,7 @@ class bit_not_node : public unary_node {
         if (expr()->eval_type() != variable_type::integer) {
             throw_type_error("invalid operator ~ for {}", expr()->eval_type());
         }
+        set_value(int32_t{});
     }
 
     void evaluate() override {
