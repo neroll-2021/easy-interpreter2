@@ -59,8 +59,8 @@ bool is_both_boolean(variable_type lhs, variable_type rhs) {
 
 bool can_compare(variable_type lhs, variable_type rhs) {
     constexpr static std::array<std::array<int, 6>, 6> table {{
-        {1, 1, 0, -1, -1, -1}, {1, 1, 0, -1, -1, -1}, {0, 0, 1, 0, 0, -1},
-        {0, 0, 0, 1, 0, -1}, {0, 0, 0, 0, 1, -1}, {-1, -1, -1, -1, -1, -1}
+        {1, 1, 0, 0, 0, 0}, {1, 1, 0, 0, 0, 0}, {0, 0, 1, 0, 0, 0},
+        {0, 0, 0, 1, 0, 0}, {0, 0, 0, 0, 1, 0}, {0, 0, 0, 0, 0, 0}
     }};
     auto lhs_index = static_cast<std::size_t>(lhs);
     auto rhs_index = static_cast<std::size_t>(rhs);
