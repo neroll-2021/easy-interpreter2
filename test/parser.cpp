@@ -16,7 +16,7 @@ int main() {
     parser psr{detail::lexer{detail::input_stream_adapter{fin}}};
 
     try {
-        auto node = psr.parse_relational();
+        auto node = psr.parse_equality();
         node->evaluate();
         std::println("{}", node->get<bool>());
     } catch (std::exception &e) {
