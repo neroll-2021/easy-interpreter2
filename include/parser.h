@@ -2,6 +2,7 @@
 #define NEROLL_SCRIPT_PARSER_H
 
 #include <cassert>
+#include <cstddef>
 #include <cstdint>
 #include <initializer_list>
 #include <memory>
@@ -38,6 +39,21 @@ class parser {
 
     lexer lexer_;
     ring_buffer<detail::token, look_ahead_count> buffer_;
+
+    std::shared_ptr<expr_node> parse_expression() {
+        // TODO
+        return parse_assignment();
+    }
+
+    std::shared_ptr<expr_node> parse_assignment() {
+        // TODO
+        return parse_conditional();
+    }
+
+    std::shared_ptr<expr_node> parse_conditional() {
+        // TODO
+        return parse_logical_or();
+    }
 
     std::shared_ptr<expr_node> parse_logical_or() {
         std::shared_ptr<expr_node> lhs = parse_logical_and();
@@ -270,9 +286,72 @@ class parser {
             case token_type::logical_not:
                 match(token_type::logical_not);
                 return std::make_shared<logical_not_node>(parse_unary());
+            case token_type::keyword_new:
+                return parse_new();
             default:
                 return parse_primary();
         }
+    }
+
+    std::shared_ptr<expr_node> parse_new() {
+        match(token_type::keyword_new);
+        token_type type_name = current_token_type();
+        match("primitive types", {
+            token_type::keyword_int, token_type::keyword_float,
+            token_type::keyword_boolean, token_type::keyword_string,
+            token_type::keyword_char
+        });
+        variable_type elem_type = to_variable_type(type_name);
+
+        std::vector<std::size_t> size_per_dim;
+        while (current_token_type() == token_type::left_bracket) {
+            match(token_type::left_bracket);
+            std::shared_ptr<expr_node> size_node = parse_expression();
+            // std::println("eee");
+            if (size_node->eval_type() != variable_type::integer) {
+                throw_type_error("array size must be integer");
+            }
+            auto size = size_node->get<int32_t>();
+            size_per_dim.push_back(size);
+            match(token_type::right_bracket);
+        }
+        array value = build_array(elem_type, 0, size_per_dim);
+        return std::make_shared<array_node>(std::move(value), elem_type);
+    }
+
+    array build_array(variable_type elem_type, std::size_t dimension, const std::vector<std::size_t> &size_per_dim) {
+        assert(!size_per_dim.empty());
+        assert(dimension < size_per_dim.size());
+        if (dimension == size_per_dim.size() - 1) {
+            array arr;
+            for (std::size_t i = 0; i < size_per_dim[dimension]; i++) {
+                switch (elem_type) {
+                    case variable_type::integer:
+                        arr.push_back(int32_t{});
+                        break;
+                    case variable_type::floating:
+                        arr.push_back(double{});
+                        break;
+                    case variable_type::boolean:
+                        arr.push_back(bool{});
+                        break;
+                    case variable_type::string:
+                        arr.push_back(std::string{});
+                        break;
+                    case variable_type::character:
+                        arr.push_back(char{});
+                        break;
+                    default:
+                        std::unreachable();
+                }
+            }
+            return arr;
+        }
+        array arr;
+        for (std::size_t i = 0; i < size_per_dim[dimension]; i++) {
+            arr.push_back(build_array(elem_type, dimension + 1, size_per_dim));
+        }
+        return arr;
     }
 
     std::shared_ptr<expr_node> parse_postfix() {
@@ -367,7 +446,10 @@ class parser {
     }
 
     void get_token() {
+        // auto t = lexer_.next_token();
+        // std::println("{}", t);
         buffer_.put(lexer_.next_token());
+        // buffer_.put(t);
     }
 
     [[nodiscard]]

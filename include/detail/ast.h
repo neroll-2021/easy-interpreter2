@@ -1012,8 +1012,12 @@ class char_node : public expr_node {
 
 class array_node : public expr_node {
  public:
-    explicit array_node(variable_type value_type)
-        : value_type_(value_type) {}
+    explicit array_node(value_t value, variable_type value_type)
+        : value_type_(value_type) {
+        set_value(std::move(value));
+    }
+
+    void evaluate() override {}
 
     [[nodiscard]]
     std::size_t size() const {

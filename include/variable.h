@@ -12,6 +12,8 @@ namespace neroll {
 
 namespace script {
 
+using namespace detail;
+
 enum class variable_type {
     error = -1, integer, floating, boolean, string, character, array
 };
@@ -32,6 +34,23 @@ const char *variable_type_name(variable_type type) {
             return "array";
         default:
             return "unknown";
+    }
+}
+
+variable_type to_variable_type(token_type type) {
+    switch (type) {
+        case token_type::keyword_int:
+            return variable_type::integer;
+        case token_type::keyword_float:
+            return variable_type::floating;
+        case token_type::keyword_boolean:
+            return variable_type::boolean;
+        case token_type::keyword_string:
+            return variable_type::string;
+        case token_type::keyword_char:
+            return variable_type::character;
+        default:
+            return variable_type::error;
     }
 }
 
