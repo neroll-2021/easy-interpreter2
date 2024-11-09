@@ -828,6 +828,48 @@ class bit_not_node : public unary_node {
     }
 };
 
+class type_cast_node : public unary_node {
+ public:
+    type_cast_node(std::shared_ptr<expr_node> exp, variable_type target_type)
+        : unary_node(std::move(exp)), target_type_(target_type) {}
+
+    void evaluate() override {
+        expr()->evaluate();
+        variable_type original_type = expr()->eval_type();
+        using a = type_cast_node;
+        const static std::array<std::array<void(a::*)(), 5>, 5> table{{
+            { nullptr, &a::type_cast<int32_t, double>, nullptr, nullptr, nullptr },
+            { &a::type_cast<double, int32_t>, nullptr, nullptr, nullptr, nullptr },
+            { nullptr, nullptr, nullptr, nullptr, nullptr },
+            { nullptr, nullptr, nullptr, nullptr, nullptr },
+            { &a::type_cast<char, int32_t>, nullptr, nullptr, nullptr, nullptr },
+        }};
+
+        auto l_index = static_cast<std::size_t>(original_type);
+        auto r_index = static_cast<std::size_t>(target_type_);
+
+        if (l_index == r_index) {
+            set_value(expr()->value());
+            return;
+        }
+
+        if (l_index >= 5 || r_index >= 5 || table[l_index][r_index] == nullptr) {
+            throw_type_error("cannot cast {} to {}", original_type, target_type_);
+        }
+
+        (this->*table[l_index][r_index])();
+    }
+
+    template <typename OriginType, typename TargetType>
+    void type_cast() {
+        auto value = expr()->get<OriginType>();
+        set_value(static_cast<TargetType>(value));
+    }
+
+ private:
+    variable_type target_type_;
+};
+
 class int_node : public expr_node {
  public:
     explicit int_node(int32_t value) {
