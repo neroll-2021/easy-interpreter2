@@ -40,6 +40,70 @@ class parser {
     lexer lexer_;
     ring_buffer<detail::token, look_ahead_count> buffer_;
 
+    std::shared_ptr<statement_node> parse_program() {
+        // TODO
+        return parse_block_item_list();
+    }
+
+    std::shared_ptr<statement_node> parse_statement() {
+        if (current_token_type() == token_type::left_brace) {
+            return parse_compound();
+        }
+        // TODO
+        return nullptr;
+    }
+
+    std::shared_ptr<statement_node> parse_declaration() {
+        return nullptr;
+    }
+
+    std::shared_ptr<statement_node> parse_compound() {
+        match(token_type::left_brace);
+        std::shared_ptr<statement_node> block_item_list = parse_block_item_list();
+        match(token_type::right_brace);
+        return block_item_list;
+    }
+
+    std::shared_ptr<statement_node> parse_block_item_list() {
+        std::vector<std::shared_ptr<statement_node>> statements;
+        while (current_token_type() != token_type::right_brace && current_token_type() != token_type::end_of_input) {
+            statements.push_back(parse_block_item());
+        }
+        return std::make_shared<block_node>(std::move(statements));
+    }
+
+    std::shared_ptr<statement_node> parse_block_item() {
+        if (is_basic_type(current_token_type()) ||
+            current_token_type() == token_type::keyword_function) {
+            return parse_declaration();
+        }
+        return parse_statement();
+    }
+
+    static bool is_basic_type(token_type type) {
+        switch (type) {
+            case token_type::keyword_int:
+            case token_type::keyword_float:
+            case token_type::keyword_boolean:
+            case token_type::keyword_string:
+            case token_type::keyword_char:
+            case token_type::keyword_function:
+                return true;
+            default:
+                return false;
+        }
+    }
+
+    std::shared_ptr<expr_stat_node> parse_expr_statement() {
+        if (current_token_type() == token_type::semicolon) {
+            match(token_type::semicolon);
+            return std::make_shared<expr_stat_node>(nullptr);
+        }
+        std::shared_ptr<expr_node> expr = parse_expression();
+        match(token_type::semicolon);
+        return std::make_shared<expr_stat_node>(std::move(expr));
+    }
+
     std::shared_ptr<expr_node> parse_expression() {
         // TODO
         return parse_assignment();

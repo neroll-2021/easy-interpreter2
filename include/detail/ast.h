@@ -1120,12 +1120,16 @@ class expr_stat_node : public statement_node, public expr_node {
         : expr_(std::move(expr)) {}
     
     std::pair<execute_state, std::optional<value_t>> execute() override {
-        expr_->evaluate();
+        if (expr_) {
+            expr_->evaluate();
+        }
         return {execute_state::normal, std::nullopt};
     }
 
     void evaluate() override {
-        expr_->evaluate();
+        if (expr_) {
+            expr_->evaluate();
+        }
     }
 
  private:
@@ -1230,6 +1234,24 @@ class return_node : public statement_node {
 
  private:
     std::shared_ptr<expr_node> expr_;
+};
+
+class block_node : public statement_node {
+ public:
+    explicit block_node(std::vector<std::shared_ptr<statement_node>> statements)
+        : statements_(std::move(statements)) {}
+
+    std::pair<execute_state, std::optional<value_t>> execute() override {
+        for (auto &statement : statements_) {
+            auto [state, returned] = statement->execute();
+            if (state != execute_state::normal) {
+                return {state, returned};
+            }
+        }
+        return {execute_state::normal, std::nullopt};
+    }
+ private:
+    std::vector<std::shared_ptr<statement_node>> statements_;
 };
 
 }   // namespace detail
