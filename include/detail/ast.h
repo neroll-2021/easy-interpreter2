@@ -968,17 +968,19 @@ class type_cast_node : public unary_node {
 class new_node : public expr_node {
  public:
     new_node(variable_type type, std::vector<std::shared_ptr<expr_node>> sizes)
-        : elem_type(type), size_per_dim(std::move(sizes)) {}
+        : elem_type(type), size_per_dim(std::move(sizes)) {
+        set_value(array{});
+    }
 
     void evaluate() override {
-        set_value(build_array(elem_type, 0));
+        set_value(build_array(0));
     }
 
  private:
     variable_type elem_type;
     std::vector<std::shared_ptr<expr_node>> size_per_dim;
 
-    array build_array(variable_type elem_type, std::size_t dimension) {
+    array build_array(std::size_t dimension) {
         assert(!size_per_dim.empty());
         assert(dimension < size_per_dim.size());
         if (dimension == size_per_dim.size() - 1) {
@@ -1012,7 +1014,7 @@ class new_node : public expr_node {
         size_per_dim[dimension]->evaluate();
             auto size = size_per_dim[dimension]->get<int32_t>();
         for (int32_t i = 0; i < size; i++) {
-            arr.push_back(build_array(elem_type, dimension + 1));
+            arr.push_back(build_array(dimension + 1));
         }
         return arr;
     }
