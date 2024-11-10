@@ -965,9 +965,9 @@ class type_cast_node : public unary_node {
     variable_type target_type_;
 };
 
-class new_node : public expr_node {
+class array_node : public expr_node {
  public:
-    new_node(variable_type type, std::vector<std::shared_ptr<expr_node>> sizes)
+    array_node(variable_type type, std::vector<std::shared_ptr<expr_node>> sizes)
         : elem_type(type), size_per_dim(std::move(sizes)) {
         set_value(array{});
     }
@@ -987,6 +987,9 @@ class new_node : public expr_node {
             array arr;
             size_per_dim[dimension]->evaluate();
             auto size = size_per_dim[dimension]->get<int32_t>();
+            if (size <= 0) {
+                throw_execute_error("array size must be positive");
+            }
             for (int32_t i = 0; i < size; i++) {
                 switch (elem_type) {
                     case variable_type::integer:
@@ -1012,7 +1015,10 @@ class new_node : public expr_node {
         }
         array arr;
         size_per_dim[dimension]->evaluate();
-            auto size = size_per_dim[dimension]->get<int32_t>();
+        auto size = size_per_dim[dimension]->get<int32_t>();
+        if (size <= 0) {
+            throw_execute_error("array size must be positive");
+        }
         for (int32_t i = 0; i < size; i++) {
             arr.push_back(build_array(dimension + 1));
         }
@@ -1065,45 +1071,45 @@ class char_node : public expr_node {
     void evaluate() override {}
 };
 
-class array_node : public expr_node {
- public:
-    explicit array_node(value_t value, variable_type value_type)
-        : value_type_(value_type) {
-        set_value(std::move(value));
-    }
+// class array_node : public expr_node {
+//  public:
+//     explicit array_node(value_t value, variable_type value_type)
+//         : value_type_(value_type) {
+//         set_value(std::move(value));
+//     }
 
-    void evaluate() override {}
+//     void evaluate() override {}
 
-    [[nodiscard]]
-    std::size_t size() const {
-        assert(eval_type() == variable_type::array);
-        return get<array>().size();
-    }
+//     [[nodiscard]]
+//     std::size_t size() const {
+//         assert(eval_type() == variable_type::array);
+//         return get<array>().size();
+//     }
 
-    [[nodiscard]]
-    bool empty() const {
-        assert(eval_type() == variable_type::array);
-        return get<array>().empty();
-    }
+//     [[nodiscard]]
+//     bool empty() const {
+//         assert(eval_type() == variable_type::array);
+//         return get<array>().empty();
+//     }
 
-    [[nodiscard]]
-    const value_t &at(std::size_t index) const {
-        return get<array>().operator[](index);
-    }
+//     [[nodiscard]]
+//     const value_t &at(std::size_t index) const {
+//         return get<array>().operator[](index);
+//     }
 
-    void set(std::size_t index, value_t value) {
-        array &data = get<array>();
-        data[index] = std::move(value);
-    }
+//     void set(std::size_t index, value_t value) {
+//         array &data = get<array>();
+//         data[index] = std::move(value);
+//     }
 
-    [[nodiscard]]
-    variable_type value_type() const noexcept {
-        return value_type_;
-    }
+//     [[nodiscard]]
+//     variable_type value_type() const noexcept {
+//         return value_type_;
+//     }
 
- private:
-    variable_type value_type_;
-};
+//  private:
+//     variable_type value_type_;
+// };
 
 enum class execute_state {
     normal, broken, continued, returned
