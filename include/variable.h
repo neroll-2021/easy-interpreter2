@@ -6,7 +6,6 @@
 #include <array>    // array
 
 #include "detail/lexer.h"
-#include "detail/array.h"
 
 namespace neroll {
 

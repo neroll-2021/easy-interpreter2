@@ -304,7 +304,7 @@ class parser {
     }
 
     std::shared_ptr<expr_node> parse_cast() {
-        if (current_token_type() == token_type::left_parenthesis) {
+        if (current_token_type() == token_type::left_parenthesis && is_basic_type(next_token(1).type)) {
             match(token_type::left_parenthesis);
             token_type type_name = current_token_type();
 
@@ -353,7 +353,7 @@ class parser {
             case token_type::keyword_new:
                 return parse_new();
             default:
-                return parse_primary();
+                return parse_postfix();
         }
     }
 
@@ -377,12 +377,38 @@ class parser {
             size_per_dim.push_back(std::move(size_node));
             match(token_type::right_bracket);
         }
-        return std::make_shared<new_node>(elem_type, std::move(size_per_dim));
+        return std::make_shared<array_node>(elem_type, std::move(size_per_dim));
     }
 
     std::shared_ptr<expr_node> parse_postfix() {
         // TODO
-        return parse_primary();
+        // switch (current_token_type()) {
+        //     case token_type::left_bracket:
+        //         return parse_array_value();
+        //     default:
+        //         return parse_primary();
+        // }
+        std::shared_ptr<expr_node> primary = parse_primary();
+        switch (current_token_type()) {
+            case token_type::left_bracket:
+            // case token_type::left_paren
+                return parse_array_value(std::move(primary));
+            default:
+                return primary;
+        }
+    }
+
+    std::shared_ptr<expr_node> parse_array_value(std::shared_ptr<expr_node> array_node)  {
+        // TODO
+        std::shared_ptr<expr_node> node{std::move(array_node)};
+        while (current_token_type() == token_type::left_bracket /* || '(' || '.' */) {
+            match(token_type::left_bracket);
+            std::shared_ptr<expr_node> index_node = parse_expression();
+            match(token_type::right_bracket);
+            std::shared_ptr<expr_node> next = node;
+            node = std::make_shared<array_value_node>(std::move(next), std::move(index_node));
+        }
+        return node;
     }
 
     std::shared_ptr<expr_node> parse_primary() {
@@ -399,6 +425,12 @@ class parser {
                 return make_node_and_match<std::string>(token_type::literal_string);
             case token_type::literal_char:
                 return make_node_and_match<char>(token_type::literal_char);
+            case token_type::left_parenthesis: {
+                match(token_type::left_parenthesis);
+                std::shared_ptr<expr_node> expr = parse_expression();
+                match(token_type::right_parenthesis);
+                return expr;
+            }
             case token_type::identifier:
                 // return parse_variable_or_function_call();
             default:

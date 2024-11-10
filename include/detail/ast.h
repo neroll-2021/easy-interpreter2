@@ -965,11 +965,72 @@ class type_cast_node : public unary_node {
     variable_type target_type_;
 };
 
+class array_value_node : public expr_node {
+ public:
+    array_value_node(std::shared_ptr<expr_node> array, std::shared_ptr<expr_node> index)
+        : array_node(std::move(array)), index_node(std::move(index)) {
+        if (array_node->eval_type() != variable_type::array) {
+            throw_type_error("invalid operator [] for {}", array_node->eval_type());
+        }
+        if (index_node->eval_type() != variable_type::integer) {
+            throw_type_error("array index must be integer, found '{}'", index_node->eval_type());
+        }
+
+        variable_type type = array_node->get<detail::array>().elem_type();
+        switch (type) {
+            case variable_type::integer:
+                set_value(int32_t{});
+                break;
+            case variable_type::floating:
+                set_value(double{});
+                break;
+            case variable_type::boolean:
+                set_value(bool{});
+                break;
+            case variable_type::string:
+                set_value(std::string{});
+                break;
+            case variable_type::character:
+                set_value(char{});
+                break;
+            case variable_type::array:
+                
+                set_value(detail::array{variable_type::array});
+                break;
+            default:
+                std::unreachable();
+        }
+    }
+    
+    void evaluate() override {
+        array_node->evaluate();
+        index_node->evaluate();
+        
+        auto arr = array_node->get<array>();
+        auto index = index_node->get<int32_t>();
+
+        if (index < 0 || index > arr.size()) {
+            throw_execute_error("index {} out of bounds: array size is {}", index, arr.size());
+        }
+
+        set_value(arr[index]);
+    }
+
+ private:
+    std::shared_ptr<expr_node> array_node;
+    std::shared_ptr<expr_node> index_node;
+};
+
 class array_node : public expr_node {
  public:
     array_node(variable_type type, std::vector<std::shared_ptr<expr_node>> sizes)
         : elem_type(type), size_per_dim(std::move(sizes)) {
-        set_value(array{});
+        assert(!size_per_dim.empty());
+        if (size_per_dim.size() == 1) {
+            set_value(array{elem_type});
+        } else {
+            set_value(array{variable_type::array});
+        }
     }
 
     void evaluate() override {
@@ -984,7 +1045,7 @@ class array_node : public expr_node {
         assert(!size_per_dim.empty());
         assert(dimension < size_per_dim.size());
         if (dimension == size_per_dim.size() - 1) {
-            array arr;
+            array arr{elem_type};
             size_per_dim[dimension]->evaluate();
             auto size = size_per_dim[dimension]->get<int32_t>();
             if (size <= 0) {
@@ -1013,7 +1074,7 @@ class array_node : public expr_node {
             }
             return arr;
         }
-        array arr;
+        array arr{variable_type::array};
         size_per_dim[dimension]->evaluate();
         auto size = size_per_dim[dimension]->get<int32_t>();
         if (size <= 0) {
